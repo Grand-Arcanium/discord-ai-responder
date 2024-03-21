@@ -1,2 +1,5 @@
 # ignore files with token
 config.py
+
+# ignore intellij files
+.idea
