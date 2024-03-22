@@ -17,7 +17,6 @@ class MyClient(discord.Client):
     @param discord.Client: the client connection to the bot user
     """
 
-
     def __init__(self):
         """
         CONSTRUCTOR: Sets the default 'intents' for the bot.

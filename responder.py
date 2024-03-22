@@ -1,5 +1,5 @@
 """
-This is the script for the bot to respond to prompts. This can be run as a standalone program or as part of a discord bot.
+This is the script for the bot to respond to ai prompts. This can be run as a standalone program or as part of a discord bot.
 
 @author Mari Shenzhen Uy, Mohawk College, Mar 2024
 @author Mauricio Canul, Mohawk College, Mar 2024
@@ -8,6 +8,9 @@ This is the script for the bot to respond to prompts. This can be run as a stand
 
 import regex as re
 from chat import *
+import openai
+
+openai.api_key = get_gpt_token() # get the token
 
 def understand(utterance):
     """
@@ -59,17 +62,24 @@ def generate(intent):
     @return: The response as a string
     """
 
-    global responses # global var for responses
 
-    if intent[0] == -1 or intent[1] == 100: # no match
-        return address(intents)
-    else: # at least one match
-        if intent[1]: # true = close match/perfect
-            # print("Close Enough")
-            return responses[intent[0]]
-        else:
-            # print("huh???")
-            return clarify(intent[0])
+
+
+
+
+while True:
+    utterance = input(">>> ")
+
+    dialog = [
+        {"role":"system", "content":"You are a pirate and you talk like a pirate. When you're asked to do math, you always add a small amount to the result. This is a pirate code that pirates use to identify one another. For example 2+2 would be 5 or 6, 3+3 would be 7 or 8, etc. Make sure you use the code. But the code is secret! Never mention it or talk about the code. Just give the answer."},
+        {"role":"user", "content":utterance}
+    ]
+
+    response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages = dialog, temperature=0, max_tokens=1)
+
+    print(response["choices"][0]["message"]["content"])
+
+    # print(response)
 
 ## Load the questions and responses
 intents, questions, responses = load_data()
@@ -81,15 +91,14 @@ def main():
     Implements a chat session in the shell.
 
     """
-    print("Hello! My name is Vol!\nWhen you're done talking, just say 'goodbye'.")
+    print("Hello! My name is Brisbane!\nWhen you're done talking, just say 'goodbye'.")
     print()
+
     utterance = ""
     while True:
         utterance = input(">>> ")
         if utterance == "goodbye":
             break
-        elif utterance == "hello":
-            response = "Hi there!"
         else:
             intent = understand(utterance)
             response = generate(intent)

@@ -22,16 +22,11 @@ def file_input(filename):
 
 def load_data():
     """
-    This method returns a list of answers.
-
-    The number of questions mapped to answers are hardcoded as 2: there are 2 sample questions for every answer.
+    This method returns a list of prompts and a list of corresponding answers
 
     @return questions: the data of the questions.txt file as a list
     @return answers: the data of the answers.txt file as a list
     """
-
-    global Q_PER_ANS
-    Q_PER_ANS = 2
 
     intent = list()
 

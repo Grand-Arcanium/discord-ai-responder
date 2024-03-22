@@ -8,11 +8,25 @@ This is the script for the bot to send prompts and parse responses from Chat GPT
 
 from config import get_gpt_token
 from helper import *
-
 import spacy
 from spacy.matcher import Matcher
 
-spacy.cli.download("en_core_web_md")
-nlp = spacy.load("en_core_web_md")
-matcher = Matcher(nlp.vocab)
+import openai
 
+openai.api_key = get_gpt_token()
+
+print("Arrr, I'm a pirate bot!")
+
+while True:
+    utterance = input(">>> ")
+
+    dialog = [
+        {"role":"system", "content":""}, # insert prompt here
+        {"role":"user", "content":utterance} # user utterance
+    ]
+
+    response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages = dialog, temperature=0, max_tokens=1)
+
+    print(response["choices"][0]["message"]["content"])
+
+    # print(response)
