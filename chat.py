@@ -1,32 +1,35 @@
 """
-This is the script for the bot to send prompts and parse responses from Chat GPT. This can be run as a standalone program or as part of a discord bot.
+This contains the flow of of the chat as a script that the bot uses to remember context and prepare prompts.
 
 @author Mari Shenzhen Uy, Mohawk College, Mar 2024
 @author Mauricio Canul, Mohawk College, Mar 2024
 @version 1.0
 """
 
-from config import get_gpt_token
-from helper import *
-import spacy
-from spacy.matcher import Matcher
+MAX_CONTEXT = 10  # max number of items in context, as to keep token costs low
 
-import openai
+def get_context():
+    """
+    Get the context of the conversation thus far.
+    :return:
+    """
 
-openai.api_key = get_gpt_token()
 
-print("Arrr, I'm a pirate bot!")
+def add_context(context):
+    """
+    Append a new line to the context.
+    If adding a line would make the context grow larger than MAX_CONTEXT,
+    this will dequeue the oldest context in favor of the newest.
 
-while True:
-    utterance = input(">>> ")
+    :param context: add context from user input
 
-    dialog = [
-        {"role":"system", "content":""}, # insert prompt here
-        {"role":"user", "content":utterance} # user utterance
-    ]
+    """
 
-    response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages = dialog, temperature=0, max_tokens=1)
+def get_prompt():
+    """
+    Prepare prompts to setup bot
 
-    print(response["choices"][0]["message"]["content"])
+    TODO able to switch from the built one and ones loaded from the file
+    :return:
+    """
 
-    # print(response)

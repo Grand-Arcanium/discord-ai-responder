@@ -6,9 +6,10 @@ This is a simple script to put the Chat GPT bot code online as a discord bot.
 @version 1.0
 """
 import discord
-import regex as re
 from config import get_discord_token
 from responder import *
+import regex as re
+
 
 class MyClient(discord.Client):
     """
@@ -56,12 +57,12 @@ class MyClient(discord.Client):
             mention = message.author.mention
 
             # get the utterance and generate the response
-            utterance = re.sub(r'<@.*>', '', message.content).strip() # remove the mention
+            utterance = re.sub(r'<@.*>', '', message.content).strip()  # remove the mention
             # utterance = message.content # <- doesn't remove the mention
 
-            if utterance.lower().find('hello') >= 0: # default greeting response
+            if utterance.lower().find('hello') >= 0:  # default greeting response
                 response = "".join(['Hello, ', mention, '!'])
-            else: # all other responses
+            else:  # all other responses
                 intent = understand(utterance)
                 response = "".join([mention, " ", generate(intent)])
 

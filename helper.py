@@ -1,11 +1,11 @@
 """
-A file/library containing various helper functions.
+A file/library containing misc helper functions.
 
-@author Mari Shenzhen Uy, Mohawk College, Feb 2024
+TODO adjust to read test files, prompts etc
+
+@author Mari Shenzhen Uy, Mohawk College, Mar 2024
 @version 2.0
 """
-
-import regex as re
 
 def file_input(filename):
     """
@@ -15,10 +15,11 @@ def file_input(filename):
     @return
     """
     lines = []
-    with open(filename) as file: # opens the file and assigns it to a variable
+    with open(filename) as file:  # opens the file and assigns it to a variable
         for line in file:
-            lines.append(line) # the strip method removes extra whitespace
+            lines.append(line)  # the strip method removes extra whitespace
     return lines
+
 
 def load_data():
     """
