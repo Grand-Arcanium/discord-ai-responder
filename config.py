@@ -13,9 +13,9 @@ def read_token(filename: str):
     @param filename name of the file
     @return token as a string
     """
-
+    our = ""
     with open(filename, 'r') as file:
-        out = file.read
+        out = file.read().strip()
 
     return out
 

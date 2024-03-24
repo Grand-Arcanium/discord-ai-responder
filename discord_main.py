@@ -36,6 +36,7 @@ class MyClient(discord.Client):
         @param self: this bot client
         """
         print('Logged on as', self.user)
+        print('God save the queen!')
 
     async def on_message(self, message):
         """
@@ -54,20 +55,27 @@ class MyClient(discord.Client):
         if self.user in message.mentions:
 
             # get the user that mentioned the bot
+            global responding
             mention = message.author.mention
 
             # get the utterance and generate the response
             utterance = re.sub(r'<@.*>', '', message.content).strip()  # remove the mention
             # utterance = message.content # <- doesn't remove the mention
-
+            response = ''
             if utterance.lower().find('hello') >= 0:  # default greeting response
                 response = "".join(['Hello, ', mention, '!'])
-            else:  # all other responses
-                intent = understand(utterance)
-                response = "".join([mention, " ", generate(intent)])
+                responding = True
+            elif responding:  # all other responses
+                if utterance.lower().find('Goodbye') >= 0:
+                    response = "".join(['Bye bye, ', mention, '!'])
+                    responding = False
+                else:
+                    intent = understand(utterance)
+                    response = "".join([mention, " ", generate(intent)])
 
             # send the response
-            await message.channel.send(response)
+            if response != '':
+                await message.channel.send(response)
 
             # check message
             global msg
@@ -78,6 +86,5 @@ class MyClient(discord.Client):
 ## Set up and log in
 client = MyClient()
 bot_token = get_discord_token()
-with open(bot_token) as file:
-    token = file.read()
-client.run(token)
+responding = False
+client.run(bot_token)

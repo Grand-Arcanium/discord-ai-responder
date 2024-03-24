@@ -9,8 +9,10 @@ This can be run as a standalone program or as part of a discord bot.
 
 from config import get_gpt_token
 import openai
+from openai import OpenAI
 
-openai.api_key = get_gpt_token()  # get token
+my_api_key = get_gpt_token()  # get token
+client = OpenAI(api_key=my_api_key)
 
 
 def understand(utterance):
@@ -23,7 +25,7 @@ def understand(utterance):
     :return: dialog containing system + assistant prompts and user message
     """
 
-    prompt = None  # todo get prompt from chat.py?
+    prompt = "Conversation"  # todo get prompt from chat.py?
 
     dialog = [
         {"role": "system",
@@ -44,9 +46,9 @@ def generate(intent):
     :return: the content of the response
     """
 
-    response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=intent, temperature=0, max_tokens=1)
-
-    return response["choices"][0]["message"]["content"]
+    response = client.chat.completions.create(model="gpt-3.5-turbo", messages=intent, temperature=0, max_tokens=64)
+    print(response)
+    return response.choices[0].message.content
 
 
 ## Main Function
