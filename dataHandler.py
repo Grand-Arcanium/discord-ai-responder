@@ -2,16 +2,21 @@ import json
 import time
 
 
+#Session time in seconds
+SESSION_TIME = 600
+
+
 def time_formatter(myTime):
     timeUnix = time.mktime(myTime.timetuple())
     return str(timeUnix)
 
 
 def compare_time(currentTime, savedTime):
+    global SESSION_TIME
     try:
         valCurrent = float(currentTime)
         valPrev = float(savedTime)
-        if valCurrent - valPrev >= 600:
+        if valCurrent - valPrev >= SESSION_TIME:
             return True
         return False
     except ValueError:
