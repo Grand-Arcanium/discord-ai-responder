@@ -27,13 +27,17 @@ def understand(utterance, history):
 
     print(history)
 
-    prompt = "Conversation"  # todo get prompt from chat.py?
+    prompt = "You are a coding assistant that aids programming students to understand the topic of collaborative " \
+             "coding, best practices, use of git and dev tools. \n You can follow a conversation if needed and you may" \
+             "be passed up to 10 questions that the user has asked in chronological order, but you may only answer the " \
+             "last one that you find"  # todo get prompt from chat.py?
 
-    dialog = [
-        {"role": "system",
-         "content": prompt},
-        {"role": "user", "content": utterance}
-    ]
+    dialog = [{"role": "system", "content": prompt}]
+
+    for ent in history:
+        dialog.append({"role": "user", "content": ent})
+
+    dialog.append({"role": "user", "content": utterance})
 
     return dialog
 
