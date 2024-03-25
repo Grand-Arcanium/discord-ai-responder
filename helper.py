@@ -1,3 +1,5 @@
+
+
 """
 A file/library containing misc helper functions.
 
@@ -6,6 +8,7 @@ TODO adjust to read test files, prompts etc
 @author Mari Shenzhen Uy, Mohawk College, Mar 2024
 @version 2.0
 """
+
 
 def file_input(filename):
     """
@@ -34,7 +37,7 @@ def load_data():
     # read file of intents line by line
     with open("intent.txt") as file:
         for line in file:
-            line = r"" + line.strip() # remove trailing whitespace/newlines
+            line = r"" + line.strip()  # remove trailing whitespace/newlines
             intent.append(line)
 
     questions = file_input("questions.txt")
@@ -42,5 +45,6 @@ def load_data():
     answers = file_input("answers.txt")
 
     return intent, questions, answers
+
 
 

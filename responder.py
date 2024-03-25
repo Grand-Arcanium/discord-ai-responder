@@ -15,7 +15,7 @@ my_api_key = get_gpt_token()  # get token
 client = OpenAI(api_key=my_api_key)
 
 
-def understand(utterance):
+def understand(utterance, history):
     """
     Prepare the prompt and the message to send
     TODO include role:assistant for prompt engineering, and include past conversation here
@@ -24,6 +24,8 @@ def understand(utterance):
     :param utterance: the user's message
     :return: dialog containing system + assistant prompts and user message
     """
+
+    print(history)
 
     prompt = "Conversation"  # todo get prompt from chat.py?
 

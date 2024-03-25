@@ -9,7 +9,7 @@ import discord
 from config import get_discord_token
 from responder import *
 import regex as re
-
+from dataHandler import *
 
 class MyClient(discord.Client):
     """
@@ -35,6 +35,7 @@ class MyClient(discord.Client):
 
         @param self: this bot client
         """
+        create_server_memory(self.guilds)
         print('Logged on as', self.user)
         print('God save the queen!')
 
@@ -48,7 +49,8 @@ class MyClient(discord.Client):
         """
 
         # don't respond to ourselves
-        if message.author == self.user:
+
+        if message.author == self.user or message.author.bot:
             return
 
         # check if mentioned
@@ -70,17 +72,19 @@ class MyClient(discord.Client):
                     response = "".join(['Bye bye, ', mention, '!'])
                     responding = False
                 else:
-                    intent = understand(utterance)
+                    add_to_history(message.guild.id, message.author.id, utterance, message.created_at)
+                    history = get_dialogue_history(message.guild.id, message.author.id)
+                    intent = understand(utterance, history)
                     response = "".join([mention, " ", generate(intent)])
 
             # send the response
             if response != '':
                 await message.channel.send(response)
 
+
             # check message
             global msg
             msg = message
-            print(message)
 
 
 ## Set up and log in
