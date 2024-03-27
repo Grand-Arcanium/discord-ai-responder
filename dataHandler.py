@@ -68,7 +68,8 @@ def add_to_history(serverId, userId, msg, time):
             user_history.pop(0)
 
         # add to history
-        user_data.update({"history": user_history.append(msg), "time": current_time})
+        user_history.append(msg)
+        user_data.update({"history": user_history, "time": current_time})
 
     else:  # history is empty
         user_data.update({"history": [msg], "time": current_time})
