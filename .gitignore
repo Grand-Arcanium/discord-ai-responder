@@ -4,3 +4,6 @@ discord_token.txt
 
 # ignore intellij files
 .idea
+
+# don't include files specific to user
+server_dialogues.json
