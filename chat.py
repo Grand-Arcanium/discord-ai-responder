@@ -14,16 +14,15 @@ SYSTEM_FILE = "base_prompts.json"
 MAX_CONTEXT = 10  # max number of items in context, as to keep token costs low
 
 
-def create_conversation(history, utterance, filename):
+def create_conversation(history, utterance, filename, target=""):
     """
     Reads a file containing prompt data, then prepares the history into proper prompt form to be appended
 
     :return: list containing all the prompts
     """
-
-    convo = create_system_prompts(filename)
-
-    dialog = [convo]
+    dialog = get_json(filename)
+    if target != "" and dict(dialog).__contains__(target):
+        dialog = dialog.get(target)
 
     for statement in history:
         dialog.append({"role": "user", "content": statement})
@@ -32,10 +31,34 @@ def create_conversation(history, utterance, filename):
 
     return dialog
 
-def create_system_prompts(filename):
-    prompts = get_json(filename)
 
-    return prompts
+def tune_dialog(dialog: list, json_val: dict, filename: str):
+    tunningString = dialog[0]["content"]
+
+    file = get_json(filename)
+
+    if file.__contains__("score"):
+        scoreArr = file.get("score")
+        score = json_val.get("score")
+        if score <= len(scoreArr) and not score < 0:
+            tunningString += scoreArr[score]
+        else:
+            tunningString += scoreArr[0]
+    if file.__contains__("tone"):
+        toneObj = dict(file.get("tone"))
+        tone = json_val.get("tone")
+        if toneObj.__contains__(tone):
+            tunningString += toneObj.get(tone)
+        else:
+            tunningString += toneObj.get("default")
+
+    tunningString += "You have also figured out that " + json_val.get("explanation") \
+                     + " and you may respond accordingly"
+    print("finalized string:", tunningString)
+    dialog[0]["content"] = tunningString
+    print("in dialog:", dialog)
+    return dialog
+
 
 def prepare_history(history):
     """

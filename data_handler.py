@@ -68,6 +68,7 @@ def get_dialogue_history(server_id, user_id):
         return []
     else:
         retVal = list(serverHistory.get(str(user_id)).get("history"))
+        retVal.pop()
 
     return retVal
 

@@ -9,7 +9,7 @@ import discord
 from config import get_discord_token
 from responder import *
 import regex as re
-from dataHandler import *
+from data_handler import *
 
 class MyClient(discord.Client):
     """
@@ -76,7 +76,8 @@ class MyClient(discord.Client):
                     add_to_history(message.guild.id, message.author.id, utterance, message.created_at)
                     history = get_dialogue_history(message.guild.id, message.author.id)
                     intent = understand(utterance, history)
-                    response = "".join([mention, " ", generate(intent[0], intent[1])])
+                    print("Intent:", intent)
+                    response = "".join([mention, " ", generate(intent, history, utterance)])
 
             # send the response
             if response != '':

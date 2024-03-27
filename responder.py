@@ -6,16 +6,17 @@ This can be run as a standalone program or as part of a discord bot.
 @author Mauricio Canul, Mohawk College, Mar 2024
 @version 1.0
 """
+import json
 
 from config import get_gpt_token
-from chat import create_system_prompts
+from chat import *
 from openai import OpenAI
 
 my_api_key = get_gpt_token()  # get token
 client = OpenAI(api_key=my_api_key)
 
-
 MAX_TOKEN = 200
+
 
 def understand(utterance, history):
     """
@@ -34,22 +35,24 @@ def understand(utterance, history):
     # low score = off-topic = acknowledge but dont ans and redirect bacl
     # high score = on-topic = ans normally
     # middle = answer briefly ish, but mainly redirect it back
-    print(history)
 
     # get the system prompt for relevance (is it on or off-topic)
-    topic_prompt = create_system_prompts(history, utterance, "topic_prompts.json")
+    topic_prompt = create_conversation(history, utterance, "topic_prompts.json", "understanding")
 
-    response = client.chat.completions.create(model="gpt-3.5-turbo-1106", messages=topic_prompt, response_format={"type": "json_object"}, temperature=0, max_tokens=MAX_TOKEN)
+
+    response = client.chat.completions.create(model="gpt-3.5-turbo-1106", messages=topic_prompt,
+                                              response_format={"type": "json_object"}, temperature=0,
+                                              max_tokens=MAX_TOKEN)
 
     # result should be in json with the proper keys
-    response_json = response.choices[0].message.content
-    print(response_json.get("score"))
-    print(response_json.get("explanation"))
+    response_json = eval(response.choices[0].message.content)
 
-    return response_json.get("score"), topic_prompt
+    print(response_json)
+
+    return response_json
 
 
-def generate(score, intent):
+def generate(intent, history, utterance):
     """
     Send the intent to the AI and get a response
 
@@ -64,8 +67,13 @@ def generate(score, intent):
     #   unless send json? kinda annoying tho
     #   get back plain text
 
-    response = client.chat.completions.create(model="gpt-3.5-turbo", messages=intent, temperature=0, max_tokens=MAX_TOKEN)
-    print(response)
+    topic_prompt = create_conversation(history, utterance, "topic_prompts.json", "responding")
+
+    topic_prompt = tune_dialog(topic_prompt, intent, "topic_prompts.json")
+
+    response = client.chat.completions.create(model="gpt-3.5-turbo", messages=topic_prompt, temperature=0,
+                                              max_tokens=MAX_TOKEN)
+
     return response.choices[0].message.content
 
 
