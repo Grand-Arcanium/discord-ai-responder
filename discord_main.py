@@ -63,6 +63,7 @@ class MyClient(discord.Client):
             # get the utterance and generate the response
             utterance = re.sub(r'<@.*>', '', message.content).strip()  # remove the mention
             # utterance = message.content # <- doesn't remove the mention
+
             response = ''
             if utterance.lower().find('hello') >= 0:  # default greeting response
                 response = "".join(['Hello, ', mention, '!'])
@@ -71,11 +72,11 @@ class MyClient(discord.Client):
                 if utterance.lower().find('Goodbye') >= 0:
                     response = "".join(['Bye bye, ', mention, '!'])
                     responding = False
-                else:
+                else:  # TODO generalize so that main() and discord can use ai
                     add_to_history(message.guild.id, message.author.id, utterance, message.created_at)
                     history = get_dialogue_history(message.guild.id, message.author.id)
                     intent = understand(utterance, history)
-                    response = "".join([mention, " ", generate(intent)])
+                    response = "".join([mention, " ", generate(intent[0], intent[1])])
 
             # send the response
             if response != '':

@@ -12,37 +12,38 @@ MAX_HISTORY = 10
 DIALOGUES = "server_dialogues.json"
 
 
-def time_formatter(myTime):
-    timeUnix = time.mktime(myTime.timetuple())
-    return str(timeUnix)
+def time_formatter(my_time):
+    time_unix = time.mktime(my_time.timetuple())
+    return str(time_unix)
 
 
-def compare_time(currentTime, savedTime):
+def compare_time(current_time, saved_time):
     global SESSION_TIME
     try:
-        valCurrent = float(currentTime)
-        valPrev = float(savedTime)
-        if valCurrent - valPrev >= SESSION_TIME:
+        val_cur = float(current_time)
+        val_prev = float(saved_time)
+        if val_cur - val_prev >= SESSION_TIME:
             return True
         return False
     except ValueError:
         return False
 
 
-def add_to_history(serverId, userId, msg, time):
-    current_time = time_formatter(time)
+def add_to_history(server_id, user_id, msg, msg_time):
+    current_time = time_formatter(msg_time)
 
     data = get_json(DIALOGUES)  # read from file
 
     # getting each key if it exists, or add one if it doesn't
-    server_data = data.setdefault(str(serverId), {})
+    server_data = data.setdefault(str(server_id), {})
+    user_data = server_data.setdefault(str(user_id), {"history": [], "time": ""})
 
-    user_data = server_data.setdefault(str(userId), {"history": [], "time": ""})
+    # get time and history for a user
     user_history = user_data.get("history")
     user_time = user_data.get("time")
 
     if user_history:  # there's a history
-        if compare_time(current_time, user_time):  # check if older than 10mins
+        if compare_time(current_time, user_time):  # check if older than 10 mins
             user_history.clear()
 
         if len(user_history) >= MAX_HISTORY:  # history reached max capacity
@@ -58,15 +59,15 @@ def add_to_history(serverId, userId, msg, time):
     update_json(DIALOGUES, data)
 
 
-def get_dialogue_history(serverId, userId):
+def get_dialogue_history(server_id, user_id):
     data = get_json(DIALOGUES)
 
-    serverHistory = dict(data.get(str(serverId)))
+    serverHistory = dict(data.get(str(server_id)))
 
-    if not serverHistory.__contains__(str(userId)):
+    if not serverHistory.__contains__(str(user_id)):
         return []
     else:
-        retVal = list(serverHistory.get(str(userId)).get("history"))
+        retVal = list(serverHistory.get(str(user_id)).get("history"))
 
     return retVal
 

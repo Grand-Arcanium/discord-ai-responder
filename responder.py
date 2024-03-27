@@ -8,51 +8,63 @@ This can be run as a standalone program or as part of a discord bot.
 """
 
 from config import get_gpt_token
-import openai
+from chat import create_system_prompts
 from openai import OpenAI
 
 my_api_key = get_gpt_token()  # get token
 client = OpenAI(api_key=my_api_key)
 
 
+MAX_TOKEN = 200
+
 def understand(utterance, history):
     """
     Prepare the prompt and the message to send
-    TODO include role:assistant for prompt engineering, and include past conversation here
-        also move this to chat as part of chat flow + adjust prompts easier + testing? generate can stay here tho
 
     :param utterance: the user's message
+    :param history: the history of messages
     :return: dialog containing system + assistant prompts and user message
     """
-
+    # ok so i decided to base the first call on whether something is on or off topic
+    # so this "understand" should be about passing a call, and getting back a score depending
+    # on how on or off topic the statement is.
+    # this score is passed on to generate, where we pass the history and current utterance
+    # for the real response/answer
+    # but this time there is a value for score that the ai will consider when making a response
+    # low score = off-topic = acknowledge but dont ans and redirect bacl
+    # high score = on-topic = ans normally
+    # middle = answer briefly ish, but mainly redirect it back
     print(history)
 
-    prompt = "You are a coding assistant that aids programming students to understand the topic of collaborative " \
-             "coding, best practices, use of git and dev tools. \n You can follow a conversation if needed and you may" \
-             "be passed up to 10 questions that the user has asked in chronological order, but you may only answer the " \
-             "last one that you find"  # todo get prompt from chat.py?
+    # get the system prompt for relevance (is it on or off-topic)
+    topic_prompt = create_system_prompts(history, utterance, "topic_prompts.json")
 
-    dialog = [{"role": "system", "content": prompt}]
+    response = client.chat.completions.create(model="gpt-3.5-turbo-1106", messages=topic_prompt, response_format={"type": "json_object"}, temperature=0, max_tokens=MAX_TOKEN)
 
-    for ent in history:
-        dialog.append({"role": "user", "content": ent})
+    # result should be in json with the proper keys
+    response_json = response.choices[0].message.content
+    print(response_json.get("score"))
+    print(response_json.get("explanation"))
 
-    dialog.append({"role": "user", "content": utterance})
-
-    return dialog
+    return response_json.get("score"), topic_prompt
 
 
-def generate(intent):
+def generate(score, intent):
     """
     Send the intent to the AI and get a response
 
-    TODO allow easy change of temp and fix max tokens
-
-    :param intent: dialog containing content to be sent to Chat GPT
+    :param intent: dialog containing content to be sent to the model
     :return: the content of the response
     """
 
-    response = client.chat.completions.create(model="gpt-3.5-turbo", messages=intent, temperature=0, max_tokens=64)
+    # from understand, get the score and then include it into the current utterance
+    # then prep it and send it with the new system prompt found in base_prompts
+    # TODO get the new system prompt via base_prompts this time, append the score for the latest one
+    #   mention in system prompt about the score found inbetween something like <score>
+    #   unless send json? kinda annoying tho
+    #   get back plain text
+
+    response = client.chat.completions.create(model="gpt-3.5-turbo", messages=intent, temperature=0, max_tokens=MAX_TOKEN)
     print(response)
     return response.choices[0].message.content
 
@@ -62,6 +74,7 @@ def generate(intent):
 def main():
     """
     Implements a chat session in the shell.
+    TODO match discord's chat implementation
 
     """
     print("Hello! My name is Brisbane!\nWhen you're done talking, just say 'goodbye'.")
