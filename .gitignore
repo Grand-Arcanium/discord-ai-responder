@@ -1,9 +1,10 @@
-# ignore files with token
+# ignore files with tokens
 gpt_token.txt
 discord_token.txt
 
 # ignore intellij files
 .idea
 
-# don't include files specific to user
+# don't include files specific to user/app
 server_dialogues.json
+prompts.txt

@@ -1,7 +1,6 @@
-import json
 import time
 import os
-
+from helper import *
 
 #Session time in seconds
 SESSION_TIME = 600
@@ -11,10 +10,6 @@ MAX_HISTORY = 10
 
 # file name for saving server dialogues
 DIALOGUES = "server_dialogues.json"
-
-def create_json_file(filename):
-    with open(filename, 'w'):  # create the file if it doesn't exist
-        pass
 
 
 def time_formatter(myTime):
@@ -34,29 +29,15 @@ def compare_time(currentTime, savedTime):
         return False
 
 
-def get_json():
-    f = open(DIALOGUES, 'r')
-    myJson = dict(json.load(f))
-    f.close()
-    return myJson
-
-
-def update_json(update):
-    w = open(DIALOGUES, 'w')
-    json.dump(update, w)
-    w.close()
-
-
 def add_to_history(serverId, userId, msg, time):
     current_time = time_formatter(time)
 
-    data = get_json()  # read from file
+    data = get_json(DIALOGUES)  # read from file
 
     # getting each key if it exists, or add one if it doesn't
     server_data = data.setdefault(str(serverId), {})
 
     user_data = server_data.setdefault(str(userId), {"history": [], "time": ""})
-    print(user_data)
     user_history = user_data.get("history")
     user_time = user_data.get("time")
 
@@ -74,12 +55,11 @@ def add_to_history(serverId, userId, msg, time):
     else:  # history is empty
         user_data.update({"history": [msg], "time": current_time})
 
-    print(server_data)
-    update_json(data)
+    update_json(DIALOGUES, data)
 
 
 def get_dialogue_history(serverId, userId):
-    data = get_json()
+    data = get_json(DIALOGUES)
 
     serverHistory = dict(data.get(str(serverId)))
 
@@ -87,8 +67,6 @@ def get_dialogue_history(serverId, userId):
         return []
     else:
         retVal = list(serverHistory.get(str(userId)).get("history"))
-        # if len(retVal) > 0:
-        #    retVal.pop()
 
     return retVal
 
@@ -102,7 +80,7 @@ def create_server_memory(currentServers):
     if os.path.getsize(DIALOGUES) == 0:  # file is empty
         data = {}
     else:
-        data = get_json()
+        data = get_json(DIALOGUES)
 
     for val in currentServers:
         if not data.__contains__(str(val.id)):
@@ -110,4 +88,4 @@ def create_server_memory(currentServers):
             changeBool = True
 
     if changeBool:
-        update_json(data)
+        update_json(DIALOGUES, data)

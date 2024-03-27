@@ -1,5 +1,3 @@
-
-
 """
 A file/library containing misc helper functions.
 
@@ -8,43 +6,36 @@ TODO adjust to read test files, prompts etc
 @author Mari Shenzhen Uy, Mohawk College, Mar 2024
 @version 2.0
 """
+import json
 
 
-def file_input(filename):
+def get_json(filename) -> dict:
     """
-    Loads each line of the file into a list and returns it.
-
-    @param
-    @return
+    Read json data from a file.
+    :param filename: name of the file
+    :return: the data as a dict
     """
-    lines = []
-    with open(filename) as file:  # opens the file and assigns it to a variable
-        for line in file:
-            lines.append(line)  # the strip method removes extra whitespace
-    return lines
+    f = open(filename, 'r')
+    data = dict(json.load(f))
+    f.close()
+    return data
 
 
-def load_data():
+def update_json(filename, update):
     """
-    This method returns a list of prompts and a list of corresponding answers
-
-    @return questions: the data of the questions.txt file as a list
-    @return answers: the data of the answers.txt file as a list
+    Write to a json file.
+    :param filename: name of the file
+    :param update: a string containing json data
     """
-
-    intent = list()
-
-    # read file of intents line by line
-    with open("intent.txt") as file:
-        for line in file:
-            line = r"" + line.strip()  # remove trailing whitespace/newlines
-            intent.append(line)
-
-    questions = file_input("questions.txt")
-
-    answers = file_input("answers.txt")
-
-    return intent, questions, answers
+    w = open(filename, 'w')
+    json.dump(update, w)
+    w.close()
 
 
-
+def create_json_file(filename):
+    """
+    Create a json file if it doesn't exist
+    :param filename: name of the file
+    """
+    with open(filename, 'w'):
+        pass  # don't write anything
