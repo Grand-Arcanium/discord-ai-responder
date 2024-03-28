@@ -9,6 +9,7 @@ This can be run as a standalone program or as part of a discord bot.
 
 import datetime
 import data_handler
+import openai
 
 from config import get_gpt_token
 from chat import *
@@ -33,6 +34,9 @@ def understand(utterance: str, history: list):
     :return: dialog containing system + assistant prompts and user message
     """
 
+    # check if currently being run on console
+    is_console = __name__ == "__main__"
+
     # get the system prompt for relevance (is it on or off-topic)
     topic_prompt = create_conversation(history, utterance, "understanding")
 
@@ -42,7 +46,7 @@ def understand(utterance: str, history: list):
     try:
         response = client.chat.completions.create(model="gpt-3.5-turbo-1106", messages=topic_prompt,
                                               response_format={"type": "json_object"}, temperature=0,
-                                              max_tokens=MAX_TOKEN)
+                                              max_tokens=MAX_TOKEN, stop="\n")
     except openai.error.Timeout as e:
         response = json_error(e)
 
@@ -63,7 +67,8 @@ def understand(utterance: str, history: list):
     # low score = off-topic = acknowledge but do not ans and redirect back
     # high score = on-topic = ans normally
     # middle = answer briefly-ish, but mainly redirect it to topic
-    print(response_json)
+    if not is_console:
+        print(response_json)
 
     return response_json
 
@@ -102,7 +107,7 @@ def generate(intent: str, utterance: str, history: list):
     :return: the content of the response
     """
 
-    # check if currently being run on console:
+    # check if currently being run on console
     is_console = __name__ == "__main__"
 
     # reset error
@@ -116,7 +121,7 @@ def generate(intent: str, utterance: str, history: list):
 
     try:
         response = client.chat.completions.create(model="gpt-3.5-turbo", messages=topic_prompt, temperature=0,
-                                              max_tokens=MAX_TOKEN)
+                                              max_tokens=MAX_TOKEN, stop="\n")
     except openai.error.Timeout as e:
         response = "Sorry, I cannot process your statement at this moment. Can you please repeat it?"
         api_error = True
