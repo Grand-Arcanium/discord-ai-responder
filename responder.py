@@ -24,19 +24,21 @@ MAX_TOKEN = 200
 
 def understand(utterance, history):
     """
-    Prepare the prompt and the message to send
+    Prepare the prompt and the message to send, it does this via a specialized System prompt that tells the
+    API to first detect the tone, relevancy score and reasoning for said score (and the question being asked)
+    of the user's utterance, this being our 1st API call
 
     :param utterance: the user's message
     :param history: the history of messages
     :return: dialog containing system + assistant prompts and user message
     """
-    # ok so i decided to base the first call on whether something is on or off topic
+    # ok so I decided to base the first call on whether something is on or off-topic
     # so this "understand" should be about passing a call, and getting back a score depending
-    # on how on or off topic the statement is.
+    # on how on or off-topic the statement is.
     # this score is passed on to generate, where we pass the history and current utterance
     # for the real response/answer
-    # but this time there is a value for score that the ai will consider when making a response
-    # low score = off-topic = acknowledge but dont ans and redirect bacl
+    # but this time there is a value for score that the AI will consider when making a response
+    # low score = off-topic = acknowledge but do not ans and redirect back
     # high score = on-topic = ans normally
     # middle = answer briefly ish, but mainly redirect it back
 
@@ -58,23 +60,20 @@ def understand(utterance, history):
 
 def generate(intent, utterance, history):
     """
-    Send the intent to the AI and get a response
+    Send the intent JSON to the AI and get a response based on the score, a tuned System prompt and
+    the relevant training prompts being used to better direct it, our second API call
 
     :param intent: dialog containing content to be sent to the model
+    :param history: the dialog history with the user up until now (last 10 messages)
+    :param utterance: the latest message from the user
     :return: the content of the response
     """
 
-    # from understand, get the score and then include it into the current utterance
-    # then prep it and send it with the new system prompt found in base_prompts
-    # TODO get the new system prompt via base_prompts this time, append the score for the latest one
-    #   mention in system prompt about the score found inbetween something like <score>
-    #   unless send json? kinda annoying tho
-    #   get back plain text
-
+    # from understand, get the score, tone and reasoning, based on utterance and user history
     topic_prompt = create_conversation(history, utterance, "topic_prompts.json", "responding")
-
+    # then prep it by including it into the current dialog and utterance...
     topic_prompt = tune_dialog(topic_prompt, intent, "topic_prompts.json")
-
+    # and send it with the new system prompt found in base_prompts
     response = client.chat.completions.create(model="gpt-3.5-turbo", messages=topic_prompt, temperature=0,
                                               max_tokens=MAX_TOKEN)
 
@@ -86,8 +85,6 @@ def generate(intent, utterance, history):
 def main():
     """
     Implements a chat session in the shell.
-    TODO match discord's chat implementation
-
     """
     print("Hello! My name is Brisbane!\nWhen you're done talking, just say 'goodbye'.")
     print()

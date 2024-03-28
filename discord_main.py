@@ -11,6 +11,7 @@ from responder import *
 import regex as re
 from data_handler import *
 
+
 class MyClient(discord.Client):
     """
     A Class to represent the Client (bot user)
@@ -31,7 +32,8 @@ class MyClient(discord.Client):
 
     async def on_ready(self):
         """
-        Called when the bot is fully logged in.
+        Called when the bot is fully logged in. Has an integrated function call used
+        to format a JSON file this bot needs for data handling and storage.
 
         @param self: this bot client
         """
@@ -48,8 +50,7 @@ class MyClient(discord.Client):
         @param message: contains all the information related to the message
         """
 
-        # don't respond to ourselves
-
+        # Bot does not respond to itself or other bots
         if message.author == self.user or message.author.bot:
             return
 
@@ -69,27 +70,27 @@ class MyClient(discord.Client):
                 response = "".join(['Hello, ', mention, '!'])
                 responding = True
             elif responding:  # all other responses
-                if utterance.lower().find('Goodbye') >= 0:
+                # if statement to make bot stop responding
+                if utterance.lower().find('goodbye') >= 0:
                     response = "".join(['Bye bye, ', mention, '!'])
                     responding = False
-                else:  # TODO generalize so that main() and discord can use ai
+                else:
+                    # We add this message to its pertinent location in the JSON data structure for future reference
                     add_to_history(message.guild.id, message.author.id, utterance, message.created_at)
+                    # We get a snippet of the conversation history that this bot has, specific to the user and server
+                    # from which the message originates
                     history = get_dialogue_history(message.guild.id, message.author.id)
+                    # We feed the conversation history and message to the bot, so it can detect our intent and tone
                     intent = understand(utterance, history)
-                    print("Intent:", intent)
+                    # We feed the intent, history, and message to the bot so it can generate an appropriate response
                     response = "".join([mention, " ", generate(intent, history, utterance)])
 
-            # send the response
+            # send the response, only if its not an empty string
             if response != '':
                 await message.channel.send(response)
 
 
-            # check message
-            global msg
-            msg = message
-
-
-## Set up and log in
+# Set up a client and log in
 client = MyClient()
 bot_token = get_discord_token()
 responding = False
