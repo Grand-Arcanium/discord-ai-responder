@@ -4,12 +4,10 @@ This can be run as a standalone program or as part of a discord bot.
 
 @author Mari Shenzhen Uy, Mohawk College, Mar 2024
 @author Mauricio Canul, Mohawk College, Mar 2024
-@version 1.0
+@version 2.0
 """
-import json
-import time
-import datetime
 
+import datetime
 import data_handler
 
 from config import get_gpt_token
@@ -30,19 +28,9 @@ def understand(utterance, history):
     :param history: the history of messages
     :return: dialog containing system + assistant prompts and user message
     """
-    # ok so i decided to base the first call on whether something is on or off topic
-    # so this "understand" should be about passing a call, and getting back a score depending
-    # on how on or off topic the statement is.
-    # this score is passed on to generate, where we pass the history and current utterance
-    # for the real response/answer
-    # but this time there is a value for score that the ai will consider when making a response
-    # low score = off-topic = acknowledge but dont ans and redirect bacl
-    # high score = on-topic = ans normally
-    # middle = answer briefly ish, but mainly redirect it back
 
     # get the system prompt for relevance (is it on or off-topic)
     topic_prompt = create_conversation(history, utterance, "topic_prompts.json", "understanding")
-
 
     response = client.chat.completions.create(model="gpt-3.5-turbo-1106", messages=topic_prompt,
                                               response_format={"type": "json_object"}, temperature=0,
@@ -58,18 +46,11 @@ def understand(utterance, history):
 
 def generate(intent, utterance, history):
     """
-    Send the intent to the AI and get a response
+    Send the intent and a history to the AI and get a response
 
     :param intent: dialog containing content to be sent to the model
     :return: the content of the response
     """
-
-    # from understand, get the score and then include it into the current utterance
-    # then prep it and send it with the new system prompt found in base_prompts
-    # TODO get the new system prompt via base_prompts this time, append the score for the latest one
-    #   mention in system prompt about the score found inbetween something like <score>
-    #   unless send json? kinda annoying tho
-    #   get back plain text
 
     topic_prompt = create_conversation(history, utterance, "topic_prompts.json", "responding")
 
@@ -86,7 +67,6 @@ def generate(intent, utterance, history):
 def main():
     """
     Implements a chat session in the shell.
-    TODO match discord's chat implementation
 
     """
     print("Hello! My name is Brisbane!\nWhen you're done talking, just say 'goodbye'.")

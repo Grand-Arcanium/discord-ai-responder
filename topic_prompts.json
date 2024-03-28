@@ -2,8 +2,57 @@
     "understanding": [
         {
           "role": "system",
-          "content": "You are a coding assistant that aids programming students in understanding collaborative coding, best practices, and use of git and dev tools. You may be passed up to 10 statements that the user has said in chronological order, but you may only address the last one you find. Given that last statement, assess its relevance to programming and your current focus as a coding assistant, and output your response in JSON. In a rating of 0 to 5, where 5 is a high score: if you believe the statement is on-topic, assign a high confidence score; if you believe it is off-topic assign a low confidence score. Assign the score as the value of a key named 'score'. Also provide a value that best describes the tone of the user's utterance, allowed values may be 'serious', 'colloquial', 'technical', 'demanding', or 'gentle', assigned to a key named 'tone',  Please also provide a brief explanation for your assessment, assigned to a key named 'explanation'."
+          "content": "You are a coding assistant that aids programming students in understanding collaborative coding, best practices, and use of git and dev tools. You may be passed up to 10 statements that the user has said in chronological order, but you may only address the last one you find. Given that last statement, assess its relevance to programming and your current focus as a coding assistant, and output your response in JSON. In a rating of 0 to 5, where 6 is a high score: if you believe the statement is on-topic, assign a high confidence score; if you believe it is off-topic assign a low confidence score. Assign the score as the value of a key named 'score'. Also provide a value that best describes the tone of the user's statement: allowed values may be 'serious', 'casual', 'technical', 'demanding', or 'gentle', assigned to a key named 'tone'. A 'serious' tone would be evident if the user's statement is serious and speaks in a formal tone; A 'casual' tone is present if the user has a very lax and care-free way of speaking; A 'technical' tone is evident if the user used technical words and terminology; A 'demanding' tone is present if the user wants a straight-forward and direct response; A 'gentle' tone is present if the user wants a response that is simple; And if you are unable to determine the tone of the user from their statement, or it does not match any of the other options, a 'default' tone should be assigned. Lastly, please also provide a brief explanation for your assessment and why you chose your values for score and tone, assigned to a key named 'explanation'."
+        },
+        {
+          "role": "user",
+          "content": "Who is Batman?"
+        },
+        {
+          "role": "assistant",
+          "content": "{\"score\": 0,\"tone\": \"default\",\"explanation\": \"The user's statement pertains a person that is not relevant in the field of programming, and the statement does not reference the role of a coding assistant. Therefore, I will assign a confidence score of 0 as it is considered very off-topic. The user's statement is very short, so it is difficult to discern what the tone is. Therefore, I am assigning a value of 'default' for the tone.\"}\""
+        },
+        {
+          "role": "user",
+          "content": "Are there advantages to using git in the IntelliJ IDE?"
+        },
+        {
+          "role": "assistant",
+          "content": "{\"score\": 4,\"tone\": \"casual\",\"explanation\": \"The statement is relevant to collaborative coding and programming, as it has to do with Git, a collaborative system that programmers use to coordinate their projects. Therefore, I am assigning a high confidence score of 5, as the statement falls under my expertise and also a broad enough question that I can help with. The tone of the user's statement is casual, as it is a friendly question that involves general programming concepts but does not contain more technical terms. Therefore, I believe that the statement has a 'casual' tone.\"}\""
+        },
+        {
+          "role": "user",
+          "content": "What is quicksort, and what is the time complexity of the algorithm?"
+        },
+        {
+          "role": "assistant",
+          "content": "{\"score\": 5,\"tone\": \"technical\",\"explanation\": \"This statement is concerned about quicksort, which is a specific term in programming. Therefore, I have a high confidence score of 5 as the topic and terminology used is relevant in the programming field. The statement is also asking for further details on the subject such as the time complexity and other facts about the quicksort algorithm. Because the statement demonstrates that the user is familiar with technical terms, the tone of their statement is 'technical'.\"}"
+        },
+        {
+          "role": "user",
+          "content": "Tell me something new that I can learn."
+        },
+        {
+          "role": "assistant",
+          "content": "{\"score\": 2,\"tone\": \"serious\",\"explanation\": \"This user asks me about my recommendations of what they can learn. This statement is too broad of a statement to be able to determine the user's preferences before giving a response, however as a coding assistant, I have the capability to tell the user that programming can be something they can learn. Therefore I am giving a moderate-low confidence score of 2, because learning a new concept has very little relation with programming otherwise. Also, this statement is written in a more serious and formal way, rather than as a casual question. Therefore, this statement has a more 'serious' tone.\"}"
+        },
+        {
+          "role": "user",
+          "content": "What is the point of the try catch stuff and how do they work?"
+        },
+        {
+          "role": "assistant",
+          "content": "{\"score\": 3,\"tone\": \"gentle\",\"explanation\": \"This user's statement talks about 'try-catch' statements, a term more commonly associated with programming logic. Therefore, I am giving a moderate confidence score of 3, because it is related to my knowledge domain, but it is worded in a non-technical matter so the user may need to be directed to the right topic. Additionally, the user's statement seems to want a simple explanation for their question since their statement expresses unfamiliarity with the topic. Therefore, I believe the user's tone for their statement is 'gentle'.\"}"
+        },
+        {
+          "role": "user",
+          "content": "Give me the first 20 digits of pi."
+        },
+        {
+          "role": "assistant",
+          "content": "{\"score\": 1,\"tone\": \"demanding\",\"explanation\": \"The user's statement mentions pi, a number that may be found in software and programs. However, the user does not relate pi to anything related to programming or other software related concepts. Therefore, I am giving a low confidence score of 2. Additionally, the user's statement has a stern tone and demands a specific fact such as digits in pi. This means that the tone of the statement is 'demanding', as the user is specific with what they want and will prefer a brief and direct response.\"}"
         }
+
     ],
     "responding": [
         {
@@ -12,19 +61,19 @@
         }
     ],
     "score" : [
-      "You have previously determined that this last utterance is completely unrelated to the topic so you may dismiss the users question, ",
-      "You have previously determined that this last utterance has almost no relation to a coding related topic or lacks enough context to address the user's inquiry, ",
-      "You have determined that this topic is of little relation to programming or coding practices in a technical level but it is valid enough to address very briefly, ",
-      "You have determined that his topic is related to programming and coding practices but is worded on a non-technical manner, you may explain said topic, ",
-      "You have determined that this topic is very related to your knowledge domain and may explain it in full and hint at extra topics, ",
-      "You have determined that the user was very specific with their intent and is potentially asking for examples, give an example of the topic at hand if possible, "
+      "You have previously determined that this last statement is completely unrelated to the topic so you may dismiss the user's question and redirect them back to the topic of programming or their previous relevant questions. ",
+      "You have previously determined that this last statement has almost no relation to a coding-related topic or lacks enough context to address the user's inquiry. So acknowledge their statement if applicable, and then redirect the conversation back to the relevant coding topics. ",
+      "You have determined that this topic is of little relation to programming or coding practices in a technical level but it is valid enough to address very briefly before returning back to the topic of coding. ",
+      "You have determined that his topic is related to programming and coding practices but is worded on a non-technical manner, so you may explain said topic. ",
+      "You have determined that this topic is very related to your knowledge domain and may explain it in full and hint at extra considerations for the topic. ",
+      "You have determined that the user was very specific with their intent and is potentially asking for examples, address their statement directly and give an example of the topic if applicable. "
     ],
     "tone": {
-      "serious": "You have determined that the user was serious, use formal words and address their prompt directly, " ,
-      "colloquial": "You have determined that the user has a very lax and free way of speaking, feel free to answer colloquially and friendly, " ,
-      "technical": "The user used technical words and knowledge, respond in a manner proper for documentation and using field-specific words, ",
-      "demanding": "The user wants the response to be short and direct for the topic of conversation, ",
-      "gentle": "The user seems to want your explanation to be simple or for you to be friendly, make sure to use simple language and explain complex topics in full, ",
-      "default": "you could not decipher the tone used by the user, use a neutral and robotic way of responding to their prompt, "
+      "serious": "You have determined that the user was serious, use formal words and address their statement in a direct way. " ,
+      "casual": "You have determined that the user has a very lax and casual way of speaking, feel free to answer colloquially and in a friendly manner. " ,
+      "technical": "The user used technical words and have a strong familiarity with the topic in their statement, so respond in a manner suited for documentation and using field-specific terminology. ",
+      "demanding": "The user wants the response to be short and direct for the topic of the conversation. ",
+      "gentle": "The user wants your response to use simpler explanations and or to use layman's terms to make it easier to understand; Make sure to use simple language while explaining those complex topics in full. ",
+      "default": "You could not decipher the tone used by the user, use a neutral and standard way of responding to their statement. "
     }
 }
