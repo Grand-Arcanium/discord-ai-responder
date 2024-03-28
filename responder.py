@@ -7,6 +7,10 @@ This can be run as a standalone program or as part of a discord bot.
 @version 1.0
 """
 import json
+import time
+import datetime
+
+import data_handler
 
 from config import get_gpt_token
 from chat import *
@@ -52,7 +56,7 @@ def understand(utterance, history):
     return response_json
 
 
-def generate(intent, history, utterance):
+def generate(intent, utterance, history):
     """
     Send the intent to the AI and get a response
 
@@ -88,15 +92,26 @@ def main():
     print("Hello! My name is Brisbane!\nWhen you're done talking, just say 'goodbye'.")
     print()
 
+    class Object(object):
+        pass
+
+    obj = Object()
+    obj.id = "1"
+
+    data_handler.create_server_memory([obj])
+
     utterance = ""
     while True:
         utterance = input(">>> ")
 
+        data_handler.add_to_history(1, "user", utterance, datetime.datetime.utcnow())
+        history = data_handler.get_dialogue_history(1, "user")
+
         if utterance == "goodbye":
             break
         else:
-            intent = understand(utterance)
-            response = generate(intent)
+            intent = understand(utterance, history)
+            response = generate(intent, utterance, history)
         print(response)
         print()
 
