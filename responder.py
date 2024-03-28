@@ -4,12 +4,10 @@ This can be run as a standalone program or as part of a discord bot.
 
 @author Mari Shenzhen Uy, Mohawk College, Mar 2024
 @author Mauricio Canul, Mohawk College, Mar 2024
-@version 1.0
+@version 2.2
 """
-import json
-import time
-import datetime
 
+import datetime
 import data_handler
 
 from config import get_gpt_token
@@ -22,28 +20,20 @@ client = OpenAI(api_key=my_api_key)
 MAX_TOKEN = 200
 
 
-def understand(utterance, history):
+def understand(utterance: str, history: list):
     """
-    Prepare the prompt and the message to send, it does this via a specialized System prompt that tells the
+    Prepare the prompt and the message to send. It does this via a specialized System prompt that tells the
     API to first detect the tone, relevancy score and reasoning for said score (and the question being asked)
-    of the user's utterance, this being our 1st API call
+    of the user's utterance. This is the 1st API call, and its values will be passed to the 2nd API Call to
+    process the actual user utterance
 
     :param utterance: the user's message
     :param history: the history of messages
     :return: dialog containing system + assistant prompts and user message
     """
-    # ok so I decided to base the first call on whether something is on or off-topic
-    # so this "understand" should be about passing a call, and getting back a score depending
-    # on how on or off-topic the statement is.
-    # this score is passed on to generate, where we pass the history and current utterance
-    # for the real response/answer
-    # but this time there is a value for score that the AI will consider when making a response
-    # low score = off-topic = acknowledge but do not ans and redirect back
-    # high score = on-topic = ans normally
-    # middle = answer briefly ish, but mainly redirect it back
 
     # get the system prompt for relevance (is it on or off-topic)
-    topic_prompt = create_conversation(history, utterance, "topic_prompts.json", "understanding")
+    topic_prompt = create_conversation(history, utterance, "understanding")
 
 
     response = client.chat.completions.create(model="gpt-3.5-turbo-1106", messages=topic_prompt,
@@ -53,12 +43,15 @@ def understand(utterance, history):
     # result should be in json with the proper keys
     response_json = eval(response.choices[0].message.content)
 
+    # low score = off-topic = acknowledge but do not ans and redirect back
+    # high score = on-topic = ans normally
+    # middle = answer briefly-ish, but mainly redirect it to topic
     print(response_json)
 
     return response_json
 
 
-def generate(intent, utterance, history):
+def generate(intent: str, utterance: str, history: list):
     """
     Send the intent JSON to the AI and get a response based on the score, a tuned System prompt and
     the relevant training prompts being used to better direct it, our second API call
@@ -70,10 +63,10 @@ def generate(intent, utterance, history):
     """
 
     # from understand, get the score, tone and reasoning, based on utterance and user history
-    topic_prompt = create_conversation(history, utterance, "topic_prompts.json", "responding")
+    topic_prompt = create_conversation(history, utterance, "responding")
     # then prep it by including it into the current dialog and utterance...
-    topic_prompt = tune_dialog(topic_prompt, intent, "topic_prompts.json")
-    # and send it with the new system prompt found in base_prompts
+    topic_prompt = tune_dialog(topic_prompt, intent)
+    # and send it with the second system prompt found in prompt file
     response = client.chat.completions.create(model="gpt-3.5-turbo", messages=topic_prompt, temperature=0,
                                               max_tokens=MAX_TOKEN)
 
@@ -86,27 +79,28 @@ def main():
     """
     Implements a chat session in the shell.
     """
-    print("Hello! My name is Brisbane!\nWhen you're done talking, just say 'goodbye'.")
+    print("Hello! My name is Brisbane, your friendly coding assistant!\nWhen you're done talking, just say 'goodbye'.")
     print()
 
+    # create a dummy obj as a substitute for an object containing a server id
     class Object(object):
         pass
 
     obj = Object()
     obj.id = "1"
 
-    data_handler.create_server_memory([obj])
+    data_handler.create_server_memory([obj])  # prepare the history
 
-    utterance = ""
     while True:
         utterance = input(">>> ")
 
+        # add user input to history
         data_handler.add_to_history(1, "user", utterance, datetime.datetime.utcnow())
         history = data_handler.get_dialogue_history(1, "user")
 
-        if utterance == "goodbye":
+        if utterance.lower() == "goodbye":  # exit
             break
-        else:
+        else:  # create a response
             intent = understand(utterance, history)
             response = generate(intent, utterance, history)
         print(response)
