@@ -67,6 +67,7 @@ def generate(intent: str, utterance: str, history: list):
     # then prep it by including it into the current dialog and utterance...
     topic_prompt = tune_dialog(topic_prompt, intent)
     # and send it with the second system prompt found in prompt file
+    print(topic_prompt)
     response = client.chat.completions.create(model="gpt-3.5-turbo", messages=topic_prompt, temperature=0,
                                               max_tokens=MAX_TOKEN)
 

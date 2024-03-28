@@ -83,7 +83,7 @@ class MyClient(discord.Client):
                     # We feed the conversation history and message to the bot, so it can detect our intent and tone
                     intent = understand(utterance, history)
                     # We feed the intent, history, and message to the bot so it can generate an appropriate response
-                    response = "".join([mention, " ", generate(intent, history, utterance)])
+                    response = "".join([mention, " ", generate(intent, utterance, history)])
 
             # send the response, only if its not an empty string
             if response != '':
