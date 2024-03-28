@@ -17,8 +17,9 @@ from openai import OpenAI
 my_api_key = get_gpt_token()  # get token
 client = OpenAI(api_key=my_api_key)
 
-MAX_TOKEN = 200
+MAX_TOKEN = 200  # max tokens to receive from ai
 
+api_error = False
 
 def understand(utterance: str, history: list):
     """
@@ -35,18 +36,57 @@ def understand(utterance: str, history: list):
     # get the system prompt for relevance (is it on or off-topic)
     topic_prompt = create_conversation(history, utterance, "understanding")
 
+    global api_error
+    api_error = False
 
-    response = client.chat.completions.create(model="gpt-3.5-turbo-1106", messages=topic_prompt,
+    try:
+        response = client.chat.completions.create(model="gpt-3.5-turbo-1106", messages=topic_prompt,
                                               response_format={"type": "json_object"}, temperature=0,
                                               max_tokens=MAX_TOKEN)
+    except openai.error.Timeout as e:
+        response = json_error(e)
+
+    except openai.APIError as e:
+        response = json_error(e)
+
+    except openai.RateLimitError as e:
+        response = json_error(e)
+
+    # other errors are not covered in this assignment as it is assumed that the token/authentication is valid
 
     # result should be in json with the proper keys
-    response_json = eval(response.choices[0].message.content)
+    if api_error:
+        response_json = response
+    else:
+        response_json = eval(response.choices[0].message.content)
 
     # low score = off-topic = acknowledge but do not ans and redirect back
     # high score = on-topic = ans normally
     # middle = answer briefly-ish, but mainly redirect it to topic
     print(response_json)
+
+    return response_json
+
+def json_error(e):
+    """
+    Prepare error in the same format as the 1st API call response.
+    :param e: the error from OpenAPI
+    :return: a formatted json
+    """
+    global api_error
+    api_error = True
+
+    response_json = {
+        "score": 0,
+        "tone": "default"
+    }
+
+    error_message = "Unfortunately, there has been an error and you couldn't\
+         analyze the user's statement. The error code was: " + e.message + ".\
+         Do not address the user's statement, and instead, apologize to the " + \
+         "user for being unable to reply, but do not mention the specific error."
+
+    response_json.update({"explanation" : error_message})  # add to response
 
     return response_json
 
@@ -62,15 +102,43 @@ def generate(intent: str, utterance: str, history: list):
     :return: the content of the response
     """
 
+    # check if currently being run on console:
+    is_console = __name__ == "__main__"
+
+    # reset error
+    api_error = False
+
     # from understand, get the score, tone and reasoning, based on utterance and user history
     topic_prompt = create_conversation(history, utterance, "responding")
     # then prep it by including it into the current dialog and utterance...
     topic_prompt = tune_dialog(topic_prompt, intent)
     # and send it with the second system prompt found in prompt file
-    response = client.chat.completions.create(model="gpt-3.5-turbo", messages=topic_prompt, temperature=0,
-                                              max_tokens=MAX_TOKEN)
 
-    return response.choices[0].message.content
+    try:
+        response = client.chat.completions.create(model="gpt-3.5-turbo", messages=topic_prompt, temperature=0,
+                                              max_tokens=MAX_TOKEN)
+    except openai.error.Timeout as e:
+        response = "Sorry, I cannot process your statement at this moment. Can you please repeat it?"
+        api_error = True
+        if not is_console:
+            print(f"OpenAPI AI has encountered an error: {e}")
+
+    except openai.APIError as e:
+        response = "Sorry, I cannot process your statement at this moment. Can you please repeat it?"
+        api_error = True
+        if not is_console:
+            print(f"OpenAPI AI has encountered an error: {e}")
+
+    except openai.RateLimitError as e:
+        response = "Sorry, I cannot process your statement at this moment. Can you please repeat it?"
+        api_error = True
+        if not is_console:
+            print(f"OpenAPI AI has encountered an error: {e}")
+
+    if api_error:
+        return response
+    else:
+        return response.choices[0].message.content
 
 
 ## Main Function

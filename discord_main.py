@@ -5,6 +5,7 @@ This is a simple script to put the Chat GPT bot code online as a discord bot.
 @author Mauricio Canul, Mohawk College, Mar 2024
 @version 1.0
 """
+
 import discord
 from config import get_discord_token
 from responder import *
@@ -16,14 +17,14 @@ class MyClient(discord.Client):
     """
     A Class to represent the Client (bot user)
 
-    @param discord.Client: the client connection to the bot user
+    :param discord.Client: the client connection to the bot user
     """
 
     def __init__(self):
         """
         CONSTRUCTOR: Sets the default 'intents' for the bot.
 
-        @param self: this bot client
+        :param self: this bot client
         """
 
         intents = discord.Intents.default()
@@ -35,7 +36,7 @@ class MyClient(discord.Client):
         Called when the bot is fully logged in. Has an integrated function call used
         to format a JSON file this bot needs for data handling and storage.
 
-        @param self: this bot client
+        :param self: this bot client
         """
         create_server_memory(self.guilds)
         print('Logged on as', self.user)
@@ -46,8 +47,8 @@ class MyClient(discord.Client):
         Called whenever the bot receives a message. The 'message' object
         contains all the pertinent information.
 
-        @param self: this bot client
-        @param message: contains all the information related to the message
+        :param self: this bot client
+        :param message: contains all the information related to the message
         """
 
         # Bot does not respond to itself or other bots
@@ -63,9 +64,10 @@ class MyClient(discord.Client):
 
             # get the utterance and generate the response
             utterance = re.sub(r'<@.*>', '', message.content).strip()  # remove the mention
-            # utterance = message.content # <- doesn't remove the mention
+            # utterance = message.content  # <- doesn't remove the mention
 
             response = ''
+
             if utterance.lower().find('hello') >= 0:  # default greeting response
                 response = "".join(['Hello, ', mention, '!'])
                 responding = True
@@ -75,15 +77,15 @@ class MyClient(discord.Client):
                     response = "".join(['Bye bye, ', mention, '!'])
                     responding = False
                 else:
-                    # We add this message to its pertinent location in the JSON data structure for future reference
+                    # add this message to its pertinent location in the JSON data structure for future reference
                     add_to_history(message.guild.id, message.author.id, utterance, message.created_at)
-                    # We get a snippet of the conversation history that this bot has, specific to the user and server
+                    # get a snippet of the conversation history that this bot has, specific to the user and server
                     # from which the message originates
                     history = get_dialogue_history(message.guild.id, message.author.id)
-                    # We feed the conversation history and message to the bot, so it can detect our intent and tone
+                    # feed the conversation history and message to the bot, so it can detect our intent and tone
                     intent = understand(utterance, history)
-                    # We feed the intent, history, and message to the bot so it can generate an appropriate response
-                    response = "".join([mention, " ", generate(intent, history, utterance)])
+                    # feed the intent, history, and message to the bot so it can generate an appropriate response
+                    response = "".join([mention, " ", generate(intent, utterance, history)])
 
             # send the response, only if its not an empty string
             if response != '':

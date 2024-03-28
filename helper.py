@@ -2,6 +2,7 @@
 A file/library containing misc helper functions.
 
 @author Mari Shenzhen Uy, Mohawk College, Mar 2024
+@author Mauricio Canul, Mohawk College, Mar 2024
 @version 2.0
 """
 import json

@@ -1,3 +1,11 @@
+"""
+This is the script for the ai that manages the history of the conversation.
+
+@author Mari Shenzhen Uy, Mohawk College, Mar 2024
+@author Mauricio Canul, Mohawk College, Mar 2024
+@version 1.2
+"""
+
 import time
 import os
 from helper import *
@@ -16,6 +24,7 @@ def time_formatter(my_time):
     """
     Used to format a given datetime UTC value into unix mktime,
     for logic, storage, and comparison purposes
+
     :param my_time: UTC datetime obj to be parsed
     :return: float representing time in seconds since the UNIX epoch
     """
@@ -23,12 +32,13 @@ def time_formatter(my_time):
     return str(time_unix)
 
 
-def compare_time(current_time, saved_time):
+def compare_time(current_time: str, saved_time: str):
     """
     Function made to make a boolean evaluation to check
     whether a time difference between the current time and
     the saved time is greater than the maximum time allowed
     for a session with the bot
+
     :param current_time: the current time as a unix time value
     :param saved_time: the saved time as a unix time value
     :return: True if the difference between the two time values is greater than or equal to the maximum session time
@@ -44,7 +54,7 @@ def compare_time(current_time, saved_time):
         return False
 
 
-def add_to_history(server_id, user_id, msg, msg_time):
+def add_to_history(server_id, user_id, msg: str, msg_time):
     """
     Function used to add a new message to the conversation history
     of a user, it searches the JSON file for the server id, then the user id
@@ -52,11 +62,11 @@ def add_to_history(server_id, user_id, msg, msg_time):
     it into memory, if that would make it so there were 10 or more items
     it would then delete the oldest one, messages are deleted 10 minutes
     after the last message in the conversation has been sent
+
     :param server_id: Id of the server from which the message to be added comes
     :param user_id: Id of the user sending in the message
     :param msg: Content of the message
     :param msg_time: UTC datetime object representing at which time the message was sent
-    :return: None
     """
     current_time = time_formatter(msg_time)
 
@@ -90,7 +100,8 @@ def add_to_history(server_id, user_id, msg, msg_time):
 def get_dialogue_history(server_id, user_id):
     """
     Function to retrieve the message history from a user in a given server
-    based on the combination of the server and the user's Id's
+    based on the combination of the server and the user's IDs
+
     :param server_id: Id of the server we are consulting
     :param user_id: Id of the user whose history we are consulting
     :return: A list of up to 9 previous messages the user has sent
@@ -108,7 +119,7 @@ def get_dialogue_history(server_id, user_id):
     return retVal
 
 
-def create_server_memory(currentServers):
+def create_server_memory(current_servers):
     """
     Function used at start up of the bot to do two things, to first create the required
     JSON file if not exists, and then to populate it with key pair values where the
@@ -116,7 +127,6 @@ def create_server_memory(currentServers):
     dictionary to hold said discord server's data
 
     :param currentServers: a list of the current servers this bot is associated with
-    :return: None
     """
     changeBool = False
 
@@ -128,7 +138,7 @@ def create_server_memory(currentServers):
     else:
         data = get_json(DIALOGUES)
 
-    for val in currentServers:
+    for val in current_servers:
         if not data.__contains__(str(val.id)):
             data.update({str(val.id): {}})
             changeBool = True
